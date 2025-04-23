@@ -1,0 +1,5 @@
+vk-api
+transformers
+torch
+flask
+gunicorn
