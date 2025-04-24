@@ -59,6 +59,24 @@ def vk_webhook():
 
     # ВКонтакте требует именно такой ответ, чтобы понять, что запрос получен:
     return 'ok', 200
+    import os
+import requests
+
+HUGGINGFACE_TOKEN = os.environ['HUGGINGFACE_TOKEN']
+
+# Функция генерации ответа через API Hugging Face (лёгкая модель)
+def generate_ai_answer(user_text):
+    API_URL = "https://api-inference.huggingface.co/models/sberbank-ai/rugpt3small_based_on_gpt2"
+    headers = {"Authorization": f"Bearer {HUGGINGFACE_TOKEN}"}
+
+    response = requests.post(API_URL, headers=headers, json={"inputs": user_text})
+
+    if response.status_code != 200:
+        return "Извините, сейчас не могу ответить."
+
+    generated_text = response.json()[0]['generated_text']
+    reply = generated_text[len(user_text):].strip()
+    return reply
 
 # запуск Flask приложения (на сервере render.com)
 if __name__ == '__main__':
