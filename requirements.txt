@@ -1,6 +1,3 @@
-vk-api
-transformers
-torch
 flask
-gunicorn
+vk_api
 requests
