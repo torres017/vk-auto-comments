@@ -7,12 +7,20 @@ import requests
 VK_TOKEN = os.environ.get('VK_TOKEN')
 GROUP_ID = os.environ.get('GROUP_ID')
 CONFIRMATION_STRING = os.environ.get('CONFIRMATION_STRING')
+HUGGINGFACE_TOKEN = os.environ.get('HUGGINGFACE_TOKEN')    # ✅ добавлено (!!!)
+
+# Выводим временно (для проверки!) токен.
 print(f"HUGGINGFACE_TOKEN='{HUGGINGFACE_TOKEN}'")
+
+# Проверка получения переменных окружения (опционально, можно потом удалить)
+if VK_TOKEN is None or GROUP_ID is None or CONFIRMATION_STRING is None or HUGGINGFACE_TOKEN is None:
+    raise ValueError("Одна или несколько переменных окружения не заданы в Render.com")
+
 # Авторизация в VK
 vk_session = vk_api.VkApi(token=VK_TOKEN)
 vk = vk_session.get_api()
 
-app = Flask(__name__)
+app = Flask(__name__) # тут исправлено на __name__
 
 # Функция генерации ответа с помощью HuggingFace API
 def generate_ai_answer(user_text):
@@ -20,17 +28,16 @@ def generate_ai_answer(user_text):
     headers = {"Authorization": f"Bearer {HUGGINGFACE_TOKEN}"}
     response = requests.post(API_URL, headers=headers, json={"inputs": user_text})
 
-    # добавил: здесь подробно проверяем ответ от модели
+    # Проверяем статус ответа API HuggingFace
     if response.status_code != 200:
-        return f"Ошибка API: status {response.status_code}, detail: {response.text}"
+        return f"Ошибка API: статус {response.status_code}, детали: {response.text}"
 
     result = response.json()
 
     if isinstance(result, dict) and 'error' in result:
-        # добавил: выводим конкретную ошибку от самой модели huggingface
         return f"Ошибка модели: {result['error']}"
 
-    generated_text = result[0]['generated_text']
+    generated_text = result[0].get('generated_text', '')
     reply = generated_text[len(user_text):].strip()
 
     if len(reply) < 2:
