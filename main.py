@@ -17,7 +17,7 @@ app = Flask(__name__)
 
 # Функция генерации ответа с использованием HuggingFace API
 def generate_ai_answer(user_text):
-    API_URL = "https://api-inference.huggingface.co/models/sberbank-ai/rugpt3small_based_on_gpt2"
+    API_URL = "https://api-inference.huggingface.co/models/DeepPavlov/rudialogpt3_medium_based_on_gpt2"
     headers = {"Authorization": f"Bearer {HUGGINGFACE_TOKEN}"}
     response = requests.post(API_URL, headers=headers, json={"inputs": user_text})
 
