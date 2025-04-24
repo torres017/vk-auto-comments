@@ -17,10 +17,10 @@ if VK_TOKEN is None or GROUP_ID is None or CONFIRMATION_STRING is None or HUGGIN
 vk_session = vk_api.VkApi(token=VK_TOKEN)
 vk = vk_session.get_api()
 
-# Создание Flask-приложения (исправлено здесь!)
+# 👇 Создание Flask-приложения (ПРАВИЛЬНО!)
 app = Flask(__name__)
 
-# Функция получения ответа по API HuggingFace с retry, верный API URL
+# Функция получения ответа по API HuggingFace с retry
 def generate_ai_answer(user_text, retries=3):
     API_URL = "https://api-inference.huggingface.co/models/sberbank-ai/rugpt3medium_based_on_gpt2"
     headers = {"Authorization": f"Bearer {HUGGINGFACE_TOKEN}"}
@@ -79,6 +79,6 @@ def vk_webhook():
 
     return 'ok', 200
 
-# Исправленный запуск Flask-приложения
+# 👇 Запуск Flask-приложения (здесь правильно!)
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
