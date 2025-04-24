@@ -8,7 +8,6 @@ VK_TOKEN = os.environ.get('VK_TOKEN')
 GROUP_ID = os.environ.get('GROUP_ID')
 CONFIRMATION_STRING = os.environ.get('CONFIRMATION_STRING')
 print(f"HUGGINGFACE_TOKEN='{HUGGINGFACE_TOKEN}'")
-
 # Авторизация в VK
 vk_session = vk_api.VkApi(token=VK_TOKEN)
 vk = vk_session.get_api()
