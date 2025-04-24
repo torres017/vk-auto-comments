@@ -3,32 +3,29 @@ from flask import Flask, request
 import os
 import requests
 
-# Получение значений из переменных окружения
+# Получение переменных окружения
 VK_TOKEN = os.environ.get('VK_TOKEN')
 GROUP_ID = os.environ.get('GROUP_ID')
 CONFIRMATION_STRING = os.environ.get('CONFIRMATION_STRING')
-HUGGINGFACE_TOKEN = os.environ.get('HUGGINGFACE_TOKEN')    # ✅ добавлено (!!!)
+HUGGINGFACE_TOKEN = os.environ.get('HUGGINGFACE_TOKEN')
 
-# Выводим временно (для проверки!) токен.
-print(f"HUGGINGFACE_TOKEN='{HUGGINGFACE_TOKEN}'")
-
-# Проверка получения переменных окружения (опционально, можно потом удалить)
+# Проверка переменных окружения
 if VK_TOKEN is None or GROUP_ID is None or CONFIRMATION_STRING is None or HUGGINGFACE_TOKEN is None:
-    raise ValueError("Одна или несколько переменных окружения не заданы в Render.com")
+    raise ValueError("Одна или несколько переменных окружения не заданы на Render.com")
 
-# Авторизация в VK
+# Авторизация ВКонтакте
 vk_session = vk_api.VkApi(token=VK_TOKEN)
 vk = vk_session.get_api()
 
-app = Flask(__name__) # тут исправлено на __name__
+# Создание Flask-приложения
+app = Flask(__name__)
 
-# Функция генерации ответа с помощью HuggingFace API
+# Функция генерации ответа (исправил путь модели на рабочий от sberbank-ai)
 def generate_ai_answer(user_text):
-    API_URL = "https://api-inference.huggingface.co/models/DeepPavlov/rudialogpt3_medium_based_on_gpt2"
+    API_URL = "https://api-inference.huggingface.co/models/sberbank-ai/rugpt3medium_based_on_gpt2"
     headers = {"Authorization": f"Bearer {HUGGINGFACE_TOKEN}"}
     response = requests.post(API_URL, headers=headers, json={"inputs": user_text})
 
-    # Проверяем статус ответа API HuggingFace
     if response.status_code != 200:
         return f"Ошибка API: статус {response.status_code}, детали: {response.text}"
 
@@ -45,7 +42,7 @@ def generate_ai_answer(user_text):
 
     return reply
 
-# Основной обработчик VK-вебхуков
+# Обработчик вебхуков ВКонтакте
 @app.route('/', methods=['POST'])
 def vk_webhook():
     data = request.json
@@ -56,7 +53,7 @@ def vk_webhook():
     if data['type'] == 'wall_reply_new':
         comment = data['object']
 
-        # проверка, чтобы бот не реагировал на самого себя
+        # Не реагируем на собственные комментарии
         if comment['from_id'] == -int(GROUP_ID):
             return 'ok', 200
 
@@ -75,6 +72,6 @@ def vk_webhook():
 
     return 'ok', 200
 
-# запуск Flask-приложения на сервере
+# Запуск приложения Flask
 if __name__ == '__main__':
-    app.run()
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
